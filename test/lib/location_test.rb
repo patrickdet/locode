@@ -1,5 +1,5 @@
 require_relative '../test_helper'
- 
+
 describe Locode::Location do
   describe ".new" do
     it "must return a valid Location for valid parameters" do
@@ -9,7 +9,7 @@ describe Locode::Location do
         full_name:                    'New York',
         full_name_without_diacritics: 'New York',
         subdivision:                  'NY',
-        function:                     '12345---',
+        function_classifier:          '12345---',
         status:                       'AI',
         date:                         '0401',
         iata_code:                    '',
@@ -21,7 +21,11 @@ describe Locode::Location do
     end
 
     it "returns an invalid Location object for invalid parameters" do
-      location = Locode::Location.new
+      location_attributes = {
+        foo: "bar"
+      }
+      location = Locode::Location.new(location_attributes)
+
       refute location.valid?
     end
   end

@@ -39,14 +39,24 @@ module Locode
     #   #=> <Locode::Location: 'US NYC'>
     #
     #
-    def initialize(*location_attributes)
+    def initialize(location_attributes)
       location_attributes.each do |k,v|
-        instance_variable_set("@#{k}", v) unless v.nil?
+        begin
+          send("#{k}=", v) if !v.nil?
+        rescue NoMethodError
+        end
       end
+    end
 
-      @valid = false
-      clean_instance_variables
-      initialization_postcondition_check
+    # Internal: Once we are done parsing the csv files we no longer want to allow
+    #           changes to the alternative_full_names or
+    #           alternative_full_names_without_diacritics.
+    #
+    # Returns nothing
+    def parsing_completed
+      private :alternative_full_names=,
+              :alternative_full_names_without_diacritics=,
+              :parsing_completed
     end
 
     # Public: UN/LOCODE
@@ -70,7 +80,7 @@ module Locode
     #
     # Returns a String containing the country code or an empty string.
     def country_code
-      @country_code
+      @country_code.to_s
     end
 
     # Public: Three letter code for a place
@@ -82,6 +92,7 @@ module Locode
     #
     # Returns a String containing the city code or an empty string.
     def city_code
+      @city_code.to_s
     end
 
     # Public: The name of a location
@@ -94,6 +105,32 @@ module Locode
     # Returns a String containing the full name of the location or an
     #         empty string.
     def full_name
+      @full_name
+    end
+
+    # Public: The alternative names of a location
+    #
+    # Examples
+    #
+    #   Locode.find_by_locode('SE GOT').first.alternative_full_names
+    #   #=> ['Gothenburg']
+    #
+    # Returns an Array of Strings containing the alternative full names of the
+    #   location or an empty array.
+    def alternative_full_names
+      @alternative_full_names ||= []
+    end
+
+    # Internal: adds the alternative full name of a location to the list of alternatives
+    #           This might not be coherent with the normal semantics of a setter
+    #           but I think it is ok since it is just a private method.
+    #
+    # Returns nothing
+    def alternative_full_names=(alternative_full_name)
+      if alternative_full_name && alternative_full_name.is_a?(String)
+        @alternative_full_names ||= []
+        @alternative_full_names << alternative_full_name.strip
+      end
     end
 
     # Public: The name of the location, but all non-latin-base characters
@@ -107,6 +144,34 @@ module Locode
     # Returns a String which contains the the full name without
     #         diacritics or an empty string
     def full_name_without_diacritics
+      @full_name_without_diacritics
+    end
+
+    # Public: The alternative names of the location, but all non-latin-base
+    #         characters are converted.
+    #
+    # Examples
+    #
+    #   Locode.find_by_locode('SE GOT').first.alternative_full_names_without_diacritics
+    #   #=> ['Gothenburg']
+    #
+    # Returns an Array of Strings containing the alternative full names without
+    #         diacritics of the location or an empty array.
+    def alternative_full_names_without_diacritics
+      @alternative_full_names_without_diacritics ||= []
+    end
+
+    # Internal: adds the alternative full name without diacritics of the location
+    #           to the list of alternatives.
+    #           This might not be coherent with the normal semantics of a setter
+    #           but I think it is ok since it is just a private method.
+    #
+    # Returns nothing
+    def alternative_full_names_without_diacritics=(alternative_full_name_without_diacritics)
+      if alternative_full_name_without_diacritics && alternative_full_name_without_diacritics.is_a?(String)
+        @alternative_full_names_without_diacritics ||= []
+        @alternative_full_names_without_diacritics << alternative_full_name_without_diacritics.strip
+      end
     end
 
     # Public: The ISO 1 to 3 character alphabetic and/or numeric code for the
@@ -125,6 +190,7 @@ module Locode
     #
     # Returns a String representing the subdivision or an empty string
     def subdivision
+      @subdivision
     end
 
     # Public: contains a 1-digit function classifier code for the location
@@ -145,26 +211,8 @@ module Locode
     #   7 = reserved for fixed transport functions (e.g. oil platform)
     #   :B = border crossing 
     def function_classifier
+      @function_classifier
     end
-
-    # Dynamically defines the following predicates:
-    #
-    # seaport?
-    # rail_terminal?
-    # road_terminal?
-    # airport?
-    # postal_exchange_office?
-    # inland_clearance_depot?
-    # fixed_transport_functions?
-    # border_crossing?
-    #
-    # Each returns: true | false
-    #
-    #functions_name_identifier.each do |key, value|
-      #define_method "#{key}?" do
-        #function_classifier.include?(value)
-      #end
-    #end
 
     # Public: Indicates the status of the entry by a 2-character code
     #
@@ -192,6 +240,7 @@ module Locode
     #   :XX = Entry that will be removed from the next issue of UN/LOCODE
     #
     def status
+      @status
     end
 
     # Public: The date the location was added or updated
@@ -205,6 +254,7 @@ module Locode
     #         list of LOCODEs. The meaning of the date values is the following:
     #         '0207' equals July 2002, '9501' equals January 1995
     def date
+      @date
     end
 
     # Public: The IATA code for the location if different from the second
@@ -223,6 +273,7 @@ module Locode
     #         code.
     #
     def iata_code
+      @iata_code
     end
 
     # Public: The coordinates of a location.
@@ -241,6 +292,7 @@ module Locode
     #         directions. The first followed by either N or S, the second by
     #         either E or W.
     def coordinates
+      @coordinates
     end
 
     # Public: The String representation of the Location
@@ -252,6 +304,7 @@ module Locode
     #
     # Returns a String that represents the Location
     def to_s
+      "<Locode::Location: '#{locode}'>"
     end
 
     # Public: To check whether the Locations attributes are all
@@ -267,7 +320,7 @@ module Locode
     #
     # Returns true or false
     def valid?
-      @valid
+      country_code && country_code.size == 2 && city_code && city_code.size == 3
     end
 
     private
@@ -276,9 +329,9 @@ module Locode
     #
     # Returns nothing
     def country_code=(country_code)
-      if country_code 
+      if country_code
         if country_code.is_a?(String)
-          @country_code = country_code.strip.upcase
+          @country_code = country_code.strip.upcase.to_sym
         elsif country_code.is_a?(Symbol)
           @country_code = country_code.upcase
         end
@@ -291,7 +344,7 @@ module Locode
     def city_code=(city_code)
       if city_code
         if city_code.is_a?(String)
-          @city_code = city_code.strip.upcase
+          @city_code = city_code.strip.upcase.to_sym
         elsif city_code.is_a?(Symbol)
           @city_code = city_code.upcase
         end
@@ -331,9 +384,9 @@ module Locode
     def function_classifier=(function_classifier)
       if function_classifier
         if function_classifier.is_a?(String)
-          @function_classifier = function_classifier.strip.select do |char|
+          @function_classifier = function_classifier.strip.chars.select do |char|
             char.to_i.between?(1, 7) || char.upcase.to_s == "B"
-          end.map do |elem|
+          end.map do |char|
             if char.to_i.between?(1, 7)
               char.to_i
             else
@@ -367,13 +420,19 @@ module Locode
     # Internal: sets the IATA code for the location
     #
     # Returns nothing
-    def iata_code
+    def iata_code=(iata_code)
+      if iata_code && iata_code.is_a?(String)
+        @iata_code = iata_code.strip
+      end
     end
 
     # Internal: sets the coordinates of a location.
     #
     # Returns nothing
-    def coordinates
+    def coordinates=(coordinates)
+      if coordinates && coordinates.is_a?(String)
+        @coordinates = coordinates.strip
+      end
     end
 
     # Internal: Used to link name of a status and the status number
@@ -390,20 +449,23 @@ module Locode
       }
     end
 
-    # Internal: Checks whether all instance variables are of the correct
-    #           type.
+    # Dynamically defines the following predicates:
     #
-    # Returns nothing
-    def clean_instance_variables
-    end
-
-    # Internal: Checks whether all required attributes are present and
-    #           within the specified value ranges. If so it sets the
-    #           @valid boolean flag to true else to false.
+    # seaport?
+    # rail_terminal?
+    # road_terminal?
+    # airport?
+    # postal_exchange_office?
+    # inland_clearance_depot?
+    # fixed_transport_functions?
+    # border_crossing?
     #
-    # Returns nothing
-    def initialization_postcondition_check
-      @valid = true if country_code
+    # Each returns: true | false
+    #
+    functions_name_identifier.each do |key, value|
+      define_method "#{key}?" do
+        function_classifier.include?(value)
+      end
     end
   end
 end

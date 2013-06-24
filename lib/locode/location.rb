@@ -323,6 +323,17 @@ module Locode
       country_code && country_code.size == 2 && city_code && city_code.size == 3
     end
 
+    # Converts the location into an hash object.
+    #
+    # Returns a hash
+    def to_hash
+      hash = {}
+      self.instance_variables.each do |var|
+        hash[var.to_s.delete("@").to_sym] = self.instance_variable_get var
+      end
+      hash
+    end
+
     private
 
     # Internal: sets the ISO 3166 alpha-2 Country Code

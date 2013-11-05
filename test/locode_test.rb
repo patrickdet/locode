@@ -53,32 +53,49 @@ describe Locode do
       let(:seaport) { Locode::Location.new country_code: 'BE', full_name: 'Antwerp', function_classifier: [1] }
       let(:airport) { Locode::Location.new country_code: 'BE', full_name: 'Brussels', function_classifier: [4] }
       let(:railstation) { Locode::Location.new country_code: 'NL', full_name: 'Venlo', function_classifier: [2] }
+      let(:locations) { [] }
 
-      before do
-        # exploit Ruby's constant lookup mechanism
-        locations = []
-        locations << seaport << airport << railstation
-        Locode::ALL_LOCATIONS = locations
+      before(:each) do
+        Locode.const_set :ALL_LOCATIONS, locations
       end
 
-      it 'excepts :B as a valid function' do
-        Locode.find_by_country_and_function('AB', ':B').must_be_empty
+      describe 'without limit' do
+        before(:each) do
+          locations << seaport << airport << railstation
+        end
+
+        it 'excepts :B as a valid function' do
+          Locode.find_by_country_and_function('AB', ':B').must_be_empty
+        end
+
+        it 'finds all locations for Belgium as seaport' do
+          locations = Locode.find_by_country_and_function('BE', 1)
+          locations.count.must_equal 1
+          locations.must_include seaport
+          locations.wont_include airport
+          locations.wont_include railstation
+        end
+
+        it 'finds all railstations in the Netherlands' do
+          locations = Locode.find_by_country_and_function('NL', 2)
+          locations.count.must_equal 1
+          locations.must_include railstation
+          locations.wont_include airport
+          locations.wont_include seaport
+        end
       end
 
-      it 'finds all locations for Belgium as seaport' do
-        locations = Locode.find_by_country_and_function('BE', 1)
-        locations.count.must_equal 1
-        locations.must_include seaport
-        locations.wont_include airport
-        locations.wont_include railstation
-      end
+      describe 'with limit' do
+        before(:each) do
+          locations << railstation << railstation << railstation
+        end
 
-      it 'finds all railstations in the Netherlands' do
-        locations = Locode.find_by_country_and_function('NL', 2)
-        locations.count.must_equal 1
-        locations.must_include railstation
-        locations.wont_include airport
-        locations.wont_include seaport
+        [1, 2].each do |limit|
+          it "returns array with the #{limit} location" do
+            locations = Locode.find_by_country_and_function('NL', 2, limit)
+            locations.count.must_equal limit
+          end
+        end
       end
     end
   end

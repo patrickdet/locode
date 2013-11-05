@@ -100,6 +100,7 @@ module Locode
   #
   # country_code - ISO 3166 alpha-2 Country Code String to filter locations by country
   # function - Integer or :B that specifies the function of the location
+  # limit - Integer to specify how many locations you want
   #
   # Examples
   #
@@ -107,10 +108,10 @@ module Locode
   #   #=> [<Locode::Location: 'BE ANR'>, ..]
   #
   # Returns an Array of Locations that satisfy the above conditions
-  def self.find_by_country_and_function(country_code, function)
+  def self.find_by_country_and_function(country_code, function, limit = ALL_LOCATIONS.size)
     return [] unless country_code.to_s =~ /^[A-Z]{2}$/
     return [] unless function.to_s =~ /^[1-7]{1}|:B{1}$/
 
-    ALL_LOCATIONS.select { |location| location.country_code == country_code && location.function_classifier.include?(function) }
+    ALL_LOCATIONS.select { |location| location.country_code == country_code && location.function_classifier.include?(function) }.take(limit)
   end
 end

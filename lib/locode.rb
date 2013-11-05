@@ -95,4 +95,22 @@ module Locode
       names.map { |name| name.downcase }.any? { |name| name.start_with?(search_string.strip.downcase) }
     end
   end
+
+  # Public: Find locations for a specific country with a specific function
+  #
+  # country_code - ISO 3166 alpha-2 Country Code String to filter locations by country
+  # function - Integer or :B that specifies the function of the location
+  #
+  # Examples
+  #
+  #   Locode.find_by_country_and_function('BE', 1)
+  #   #=> [<Locode::Location: 'BE ANR'>, ..]
+  #
+  # Returns an Array of Locations that satisfy the above conditions
+  def self.find_by_country_and_function(country_code, function)
+    return [] unless country_code.to_s =~ /^[A-Z]{2}$/
+    return [] unless function.to_s =~ /^[1-7]{1}|:B{1}$/
+
+    ALL_LOCATIONS.select { |location| location.country_code == country_code && location.function_classifier.include?(function) }
+  end
 end

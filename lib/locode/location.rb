@@ -1,4 +1,6 @@
 # encoding: utf-8
+require 'json'
+
 module Locode
   class Location
     # Public: Initializes a new Location
@@ -305,6 +307,29 @@ module Locode
     # Returns a String that represents the Location
     def to_s
       "<Locode::Location: '#{locode}'>"
+    end
+
+    # Public: The JSON representation of the Location
+    #
+    # Examples
+    #
+    #   Locode.find_by_locode('US NYC').first.to_json
+    #   #=>
+    #
+    # Returns a JSON that represents the Location
+    def to_json
+      {
+          country_code: country_code,
+          city_code: city_code,
+          full_name: full_name,
+          full_name_without_diacritics: full_name_without_diacritics,
+          subdivision: subdivision,
+          function_classifier: function_classifier,
+          status: status,
+          date: date,
+          iata_code: iata_code,
+          coordinates: coordinates
+      }.to_json
     end
 
     # Public: To check whether the Locations attributes are all

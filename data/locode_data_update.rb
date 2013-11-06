@@ -45,18 +45,6 @@ class LocodeDataUpdate
     Dir.glob('./data/csv/*.csv') do |file|
       CSV.parse(File.open(file)) do |row|
         if reference_entry?(row)
-          location_attributes = {
-            country_code:                 row[1],
-            city_code:                    row[2],
-            full_name:                    row[3],
-            full_name_without_diacritics: row[4],
-            subdivision:                  row[5],
-            function_classifier:          row[6],
-            status:                       row[7],
-            date:                         row[8], 
-            iata_code:                    row[9],
-            coordinates:                  row[10]
-          }
           location = self.locations.select do |location|
             location.country_code == row[1] &&
               location.full_name == get_name_from_row(row)

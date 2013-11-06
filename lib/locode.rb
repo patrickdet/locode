@@ -25,7 +25,7 @@ module Locode
     ALL_LOCATIONS.select {|location| location.road_terminal? }.take(limit)
   end
 
-  def self.airport(limit = ALL_LOCATIONS.size)s
+  def self.airport(limit = ALL_LOCATIONS.size)
     ALL_LOCATIONS.select {|location| location.airport? }.take(limit)
   end
 

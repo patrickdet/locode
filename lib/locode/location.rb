@@ -309,15 +309,15 @@ module Locode
       "<Locode::Location: '#{locode}'>"
     end
 
-    # Public: The JSON representation of the Location
+    # Public: The Hash representation of the Location
     #
     # Examples
     #
-    #   Locode.find_by_locode('US NYC').first.to_json
-    #   #=>
+    #   Locode.find_by_locode('BE ANR').first.to_h
+    #   #=> {:country_code=>"BE", ... }
     #
-    # Returns a JSON that represents the Location
-    def to_json
+    # Returns a Hash that represents the Location
+    def to_h
       {
           country_code: country_code,
           city_code: city_code,
@@ -329,7 +329,19 @@ module Locode
           date: date,
           iata_code: iata_code,
           coordinates: coordinates
-      }.to_json
+      }
+    end
+
+    # Public: The JSON representation of the Location
+    #
+    # Examples
+    #
+    #   Locode.find_by_locode('US NYC').first.to_json
+    #   #=> {"country_code":"US","city_code":"NYC", ...}
+    #
+    # Returns a JSON that represents the Location
+    def to_json
+      self.to_h.to_json
     end
 
     # Public: To check whether the Locations attributes are all

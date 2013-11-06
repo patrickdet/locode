@@ -42,10 +42,10 @@ describe Locode::Location do
                                               date: '0401',
                                               iata_code: '',
                                               coordinates: '4042N 07400W'
-                                          })}
+                                          }) }
 
     it 'should return a json output' do
-      json = JSON.parse( location.to_json )
+      json = JSON.parse(location.to_json)
       json['country_code'].must_equal location.country_code
       json['city_code'].must_equal location.city_code
       json['full_name'].must_equal location.full_name
@@ -56,6 +56,29 @@ describe Locode::Location do
       json['date'].must_equal location.date
       json['iata_code'].must_equal location.iata_code
       json['coordinates'].must_equal location.coordinates
+    end
+  end
+
+  describe 'to_h' do
+    let(:attributes) { {
+        country_code: 'US',
+        city_code: 'NYC',
+        full_name: 'New York',
+        full_name_without_diacritics: 'New York',
+        subdivision: 'NY',
+        function_classifier: '12345---',
+        status: 'AI',
+        date: '0401',
+        iata_code: '',
+        coordinates: '4042N 07400W'
+    } }
+    let(:location) { Locode::Location.new(attributes) }
+
+    it 'should return a hash' do
+      hash = location.to_h
+      hash.must_be_instance_of Hash
+      hash[:subdivision].must_equal location.subdivision
+      hash[:coordinates].must_equal location.coordinates
     end
   end
 end

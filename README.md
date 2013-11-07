@@ -1,5 +1,7 @@
 # Locode
 
+[![Build Status](https://travis-ci.org/niels-s/locode.png)](https://travis-ci.org/niels-s/locode)
+
 TODO: Write a gem description
 
 ## Installation

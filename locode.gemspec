@@ -8,9 +8,9 @@ Gem::Specification.new do |spec|
   spec.version       = Locode::VERSION
   spec.authors       = ['Patrick Detlefsen']
   spec.email         = ['patrick.detlefsen@gmail.com']
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
-  spec.homepage      = ''
+  spec.description   = %q{The Locode gem gives you the ability to lookup UN/LOCODE codes.}
+  spec.summary       = %q{The Locode gem gives you the ability to lookup UN/LOCODE codes.}
+  spec.homepage      = 'https://github.com/patrickdet/locode'
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files`.split($/)

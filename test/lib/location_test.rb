@@ -45,7 +45,7 @@ describe Locode::Location do
                                           }) }
 
     it 'should return a json output' do
-      json = JSON.parse(location.to_json)
+      json = MultiJson.load(location.to_json)
       json['country_code'].must_equal location.country_code
       json['city_code'].must_equal location.city_code
       json['full_name'].must_equal location.full_name

@@ -1,5 +1,7 @@
 # encoding: utf-8
 require 'yaml'
+require 'multi_json'
+
 require_relative 'locode/version'
 require_relative 'locode/location'
 

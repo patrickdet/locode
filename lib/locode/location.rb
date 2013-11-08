@@ -1,5 +1,4 @@
 # encoding: utf-8
-require 'json'
 
 module Locode
   class Location
@@ -211,7 +210,7 @@ module Locode
     #   5 = postal exchange office
     #   6 = Inland Clearance Depot – ICD or "Dry Port"
     #   7 = reserved for fixed transport functions (e.g. oil platform)
-    #   :B = border crossing 
+    #   :B = border crossing
     def function_classifier
       @function_classifier
     end
@@ -236,9 +235,9 @@ module Locode
     #        reference work
     #   :RN = Request from credible national sources for locations in their own country
     #   :RQ = Request under consideration
-    #   :RR = Request rejected 
-    #   :QQ = Original entry not verified since date indicated 
-    #   :UR = Entry included on user's request; not officially approved 
+    #   :RR = Request rejected
+    #   :QQ = Original entry not verified since date indicated
+    #   :UR = Entry included on user's request; not officially approved
     #   :XX = Entry that will be removed from the next issue of UN/LOCODE
     #
     def status
@@ -341,7 +340,7 @@ module Locode
     #
     # Returns a JSON that represents the Location
     def to_json
-      self.to_h.to_json
+      MultiJson.dump(self.to_h)
     end
 
     # Public: To check whether the Locations attributes are all

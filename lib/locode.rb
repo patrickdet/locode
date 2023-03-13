@@ -8,7 +8,7 @@ require_relative 'locode/location'
 module Locode
 
   def self.load_data
-    YAML.load(File.read(File.expand_path('../../data/yaml/dump.yml', __FILE__)))
+    YAML.unsafe_load(File.read(File.expand_path('../../data/yaml/dump.yml', __FILE__)))
   end
   private_class_method :load_data
 
